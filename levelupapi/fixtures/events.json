@@ -1,0 +1,24 @@
+[
+    {
+        "model": "levelupapi.event",
+        "pk": 1,
+        "fields": {
+            "game": 1,
+            "description": "Bi-weekly game to hone hand-eye coordination.",
+            "date": "2022-01-31",
+            "time": "15:30",
+            "organizer": 1
+        }
+    },
+    {
+        "model": "levelupapi.event",
+        "pk": 2,
+        "fields": {
+            "game": 2,
+            "description": "Starting 32 off right with a new playthrough of The Witcher!",
+            "date": "2022-06-14",
+            "time": "12:00",
+            "organizer": 1
+        }
+    }
+]
