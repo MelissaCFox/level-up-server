@@ -1,8 +1,9 @@
 from django.http import HttpResponseServerError
+from django.core.exceptions import ValidationError
 from rest_framework.viewsets import ViewSet
 from rest_framework.response import Response
 from rest_framework import serializers, status
-from levelupapi.models import Event
+from levelupapi.models import Event, Gamer, Game
 
 
 class EventView(ViewSet):
@@ -15,22 +16,59 @@ class EventView(ViewSet):
             Response -- JSON serialized game type
         """
         try:
-            game_type = Event.objects.get(pk=pk)
-            serializer = EventSerializer(game_type)
+            event = Event.objects.get(pk=pk)
+            serializer = EventSerializer(event)
             return Response(serializer.data)
         except Event.DoesNotExist as ex:
             return Response({'message': ex.args[0]}, status=status.HTTP_404_NOT_FOUND)
 
 
     def list(self, request):
-        """Handle GET requests to get all game types
+        """Handle GET requests to get all events
 
         Returns:
-            Response -- JSON serialized list of game types
+            Response -- JSON serialized list of events
         """
-        game_types = Event.objects.all()
-        serializer = EventSerializer(game_types, many=True)
+        events = Event.objects.all()
+        serializer = EventSerializer(events, many=True)
         return Response(serializer.data)
+
+    def create(self, request):
+        """Handle POST operations
+
+        Returns:
+            Response -- JSON serialized event instance
+        """
+
+        # Uses the token passed in the `Authorization` header
+        gamer = Gamer.objects.get(user=request.auth.user)
+        game = Game.objects.get(pk=request.data["gameId"])
+
+
+        # Create a new Python instance of the Event class
+        # and set its properties from what was sent in the
+        # body of the request from the client.
+        event = Event.objects.create(
+            game = game,
+            description = request.data["description"],
+            date = request.data["date"],
+            time = request.data["time"],
+            organizer = gamer
+        )
+
+        # Try to save the new game to the database, then
+        # serialize the game instance as JSON, and send the
+        # JSON as a response to the client request
+        try:
+            event.save()
+            serializer = EventSerializer(event)
+            return Response(serializer.data)
+
+        # If anything went wrong, catch the exception and
+        # send a response with a 400 status code to tell the
+        # client that something was wrong with its request data
+        except ValidationError as ex:
+            return Response({"reason": ex.message}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class EventSerializer(serializers.ModelSerializer):
