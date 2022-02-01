@@ -22,5 +22,42 @@
             "number_of_players": 1,
             "skill_level": 4
         }
+        
+    },
+    {
+        "model": "levelupapi.game",
+        "pk": 3,
+        "fields": {
+            "game_type": 1,
+            "title": "Welcome To",
+            "maker": "Benoit Turpin",
+            "gamer": 1,
+            "number_of_players": 4,
+            "skill_level": 3
+        }
+    },
+    {
+        "model": "levelupapi.game",
+        "pk": 4,
+        "fields": {
+            "game_type": 1,
+            "title": "Settlers of Catan",
+            "maker": "Klaus Teuber",
+            "gamer": 1,
+            "number_of_players": 4,
+            "skill_level": 4
+        }
+    },
+    {
+        "model": "levelupapi.game",
+        "pk": 5,
+        "fields": {
+            "game_type": 2,
+            "title": "Dungeons & Dragons",
+            "maker": "Wizards of the Coast",
+            "gamer": 1,
+            "number_of_players": 5,
+            "skill_level": 3
+        }
     }
 ]

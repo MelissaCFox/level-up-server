@@ -6,4 +6,8 @@ class Event(models.Model):
     description = models.CharField(max_length=55)
     date = models.DateField()
     time = models.TimeField()
-    organizer = models.ForeignKey("Gamer", on_delete=models.CASCADE)
+    organizer = models.ForeignKey("Gamer", on_delete=models.CASCADE, related_name="organizing")
+    attendees = models.ManyToManyField("Gamer", through="EventGamer", related_name="attending")
+
+## added the organizer related_name and attendees property after migration... 
+## if that makes a difference
