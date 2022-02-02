@@ -95,6 +95,13 @@ class EventView(ViewSet):
             return Response(None, status=status.HTTP_204_NO_CONTENT)
         except ValidationError as ex:
             return Response ({'message': ex.args[0]}, status=status.HTTP_400_BAD_REQUEST)
+        
+
+    def destroy(self, request, pk):
+        event = Event.objects.get(pk=pk)
+        event.delete()
+        return Response(None, status=status.HTTP_204_NO_CONTENT)
+        
 
 
 class EventSerializer(serializers.ModelSerializer):
