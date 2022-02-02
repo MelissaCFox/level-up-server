@@ -71,8 +71,34 @@ class EventView(ViewSet):
             return Response({"reason": ex.message}, status=status.HTTP_400_BAD_REQUEST)
 
 
+    def update(self, request, pk=None):
+        """Handle PUT requests for a event
+
+        Returns:
+            Response -- Empty body with 204 status code
+        """
+        # Do mostly the same thing as POST, but instead of
+        # creating a new instance of Event, get the event record
+        # from the database whose primary key is `pk`
+        try:
+            event = Event.objects.get(pk=pk)
+            event.description = request.data["description"]
+            event.date = request.data["date"]
+            event.time = request.data["time"]
+
+            game = Game.objects.get(pk=request.data["gameId"])
+            event.game = game
+            event.save()
+
+            # 204 status code means everything worked but the
+            # server is not sending back any data in the response
+            return Response(None, status=status.HTTP_204_NO_CONTENT)
+        except ValidationError as ex:
+            return Response ({'message': ex.args[0]}, status=status.HTTP_400_BAD_REQUEST)
+
+
 class EventSerializer(serializers.ModelSerializer):
-    """JSON serializer for game types
+    """JSON serializer for event types
     """
     class Meta:
         model = Event
