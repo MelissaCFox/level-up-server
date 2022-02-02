@@ -9,5 +9,11 @@ class Event(models.Model):
     organizer = models.ForeignKey("Gamer", on_delete=models.CASCADE, related_name="organizing")
     attendees = models.ManyToManyField("Gamer", through="EventGamer", related_name="attending")
 
-## added the organizer related_name and attendees property after migration... 
-## if that makes a difference
+    @property
+    def joined(self):
+        return self.__joined
+
+    @joined.setter
+    def joined(self, value):
+        self.__joined = value
+
