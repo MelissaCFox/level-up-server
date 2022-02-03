@@ -6,7 +6,8 @@ from rest_framework.viewsets import ViewSet
 from rest_framework.response import Response
 from rest_framework import serializers
 from rest_framework import status
-from levelupapi.models import Game, GameType, Gamer
+from levelupapi.models import Game, GameType, Gamer, Event
+from django.db.models import Count, Q
 
 
 class GameView(ViewSet):
@@ -61,13 +62,18 @@ class GameView(ViewSet):
         Returns:
             Response -- JSON serialized game instance
         """
-            # `pk` is a parameter to this function, and
-            # Django parses it from the URL route parameter
-            #   http://localhost:8000/games/2
-            #
-            # The `2` at the end of the route becomes `pk`
+
+    ## TODO ---- ! use_event_count property no longer resulting in errors,
+    ## TODO ---- ! but it is not adding the property on the objects at all
+        gamer = Gamer.objects.get(user=request.auth.user)
         try:
-            game = Game.objects.get(pk=pk)
+            game = Game.objects.annotate(
+                event_count=Count('events'),
+                user_event_count=Count(
+                    'events',
+                    filter=Q(events__organizer=gamer)
+                )
+            ).get(pk=pk)
             serializer = GameSerializer(game)
             return Response(serializer.data)
         except Game.DoesNotExist as ex:
@@ -128,8 +134,8 @@ class GameView(ViewSet):
         Returns:
             Response -- JSON serialized list of games
         """
-        # Get all game records from the database
-        games = Game.objects.all()
+        # Get all game records from database and add event count to each
+        games = Game.objects.annotate(event_count=Count('events'))
 
         # Support filtering games by type
         #    http://localhost:8000/games?type=1
@@ -149,7 +155,10 @@ class GameSerializer(serializers.ModelSerializer):
     Arguments:
         serializer type
     """
+    event_count = serializers.IntegerField(default=None)
+    
     class Meta:
         model = Game
-        fields = ('id', 'title', 'maker', 'number_of_players', 'skill_level', 'game_type')
+        fields = ('id', 'title', 'maker', 'number_of_players', 'skill_level', 'game_type',
+                  'event_count')
         depth = 1

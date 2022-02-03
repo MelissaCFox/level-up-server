@@ -5,6 +5,7 @@ from rest_framework.response import Response
 from rest_framework import serializers, status
 from levelupapi.models import Event, Gamer, Game
 from rest_framework.decorators import action
+from django.db.models import Count, Q
 
 
 class EventView(ViewSet):
@@ -16,8 +17,18 @@ class EventView(ViewSet):
         Returns:
             Response -- JSON serialized game type
         """
+        gamer = Gamer.objects.get(user=request.auth.user)
+
         try:
-            event = Event.objects.get(pk=pk)
+            event = Event.objects.annotate(
+                attendees_count=Count('attendees'),
+                joined=Count(
+                    'attendees',
+                    filter=Q(attendees=gamer)
+                )
+            ).get(pk=pk)
+
+
             serializer = EventSerializer(event)
             return Response(serializer.data)
         except Event.DoesNotExist as ex:
@@ -30,13 +41,18 @@ class EventView(ViewSet):
         Returns:
             Response -- JSON serialized list of events
         """
-        events = Event.objects.all()
-        
-        # Set the `joined` property on every event
         gamer = Gamer.objects.get(user=request.auth.user)
-        for event in events:
-            # Check to see if the gamer is in the attendees list on the event
-            event.joined = gamer in event.attendees.all()
+
+        # Add 'joined' property through annotate using Q
+        # instead of true/false, joined value will be binary (1 or 0)      
+        events = Event.objects.annotate(
+            attendees_count=Count('attendees'),
+            joined=Count(
+                'attendees',
+                filter=Q(attendees=gamer)
+            )
+        )
+
 
         serializer = EventSerializer(events, many=True)
         return Response(serializer.data)
@@ -133,8 +149,9 @@ class EventView(ViewSet):
 class EventSerializer(serializers.ModelSerializer):
     """JSON serializer for event types
     """
+    attendees_count = serializers.IntegerField(default=None)
     class Meta:
         model = Event
         fields = ('id', 'game', 'description', 'date', 'time', 'organizer', 'attendees',
-                  'joined')
+                  'joined', 'attendees_count')
         depth = 3
