@@ -63,8 +63,7 @@ class GameView(ViewSet):
             Response -- JSON serialized game instance
         """
 
-    ## TODO ---- ! use_event_count property no longer resulting in errors,
-    ## TODO ---- ! but it is not adding the property on the objects at all
+    ## TODO ---- ! user_event_count property name coming back as invalid
         gamer = Gamer.objects.get(user=request.auth.user)
         try:
             game = Game.objects.annotate(
@@ -89,23 +88,23 @@ class GameView(ViewSet):
         # Do mostly the same thing as POST, but instead of
         # creating a new instance of Game, get the game record
         # from the database whose primary key is `pk`
-        game = Game.objects.get(pk=pk)
-        game.title = request.data["title"]
-        game.maker = request.data["maker"]
-        game.number_of_players = request.data["numberOfPlayers"]
-        game.skill_level = request.data["skillLevel"]
-
-        game_type = GameType.objects.get(pk=request.data["gameTypeId"])
-        game.game_type = game_type
-        
         try:
+            game = Game.objects.get(pk=pk)
+            game.title = request.data["title"]
+            game.maker = request.data["maker"]
+            game.number_of_players = request.data["numberOfPlayers"]
+            game.skill_level = request.data["skillLevel"]
+
+            game_type = GameType.objects.get(pk=request.data["gameTypeId"])
+            game.game_type = game_type
+        
             game.save()
             serializer = GameSerializer(game)
             return Response(serializer.data, status=status.HTTP_204_NO_CONTENT)
             # 204 status code means everything worked but the
             # server is not sending back any data in the response
-        # except Game.DoesNotExist as ex:
-        #     return Response({'message': ex.args[0]}, status=status.HTTP_404_NOT_FOUND)
+        except Game.DoesNotExist as ex:
+            return Response({'message': ex.args[0]}, status=status.HTTP_404_NOT_FOUND)
         except ValidationError as ex:
             return Response({'message': ex.args[0]}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -156,9 +155,12 @@ class GameSerializer(serializers.ModelSerializer):
         serializer type
     """
     event_count = serializers.IntegerField(default=None)
+    user_event_count = serializers.IntegerField(default=None)
     
     class Meta:
         model = Game
         fields = ('id', 'title', 'maker', 'number_of_players', 'skill_level', 'game_type',
-                  'event_count')
+                  'event_count', 'user_event_count' )
         depth = 1
+
+# , 'user_event_count'
