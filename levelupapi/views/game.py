@@ -46,7 +46,7 @@ class GameView(ViewSet):
         try:
             game.save()
             serializer = GameSerializer(game)
-            return Response(serializer.data)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         # If anything went wrong, catch the exception and
         # send a response with a 400 status code to tell the
@@ -156,11 +156,11 @@ class GameSerializer(serializers.ModelSerializer):
     """
     event_count = serializers.IntegerField(default=None)
     user_event_count = serializers.IntegerField(default=None)
-    
+
     class Meta:
         model = Game
         fields = ('id', 'title', 'maker', 'number_of_players', 'skill_level', 'game_type',
-                  'event_count', 'user_event_count' )
+                  'event_count', 'user_event_count', 'gamer' )
         depth = 1
 
 # , 'user_event_count'
