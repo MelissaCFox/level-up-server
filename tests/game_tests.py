@@ -144,7 +144,6 @@ class GameTests(APITestCase):
             "skillLevel": 2,
             "numberOfPlayers": 4,
             "gameTypeId": 1,
-            "description": "Is it too late now to say sorry?"
         }
 
         # Initiate PUT request and capture the response
@@ -202,5 +201,3 @@ class GameTests(APITestCase):
 
         # Assert that the response status code is 404 (NOT FOUND)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-
-

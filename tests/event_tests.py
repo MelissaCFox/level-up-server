@@ -44,10 +44,10 @@ class EventTests(APITestCase):
         # Create a new instance of GameType
         game_type=GameType()
         game_type.label = "Board Game"
-        
+
         # Save the GameType to the testing database
         game_type.save()
-        
+
         # Create a new instance of Game
         game = Game()
         game.title = "Sorry"
@@ -55,7 +55,6 @@ class EventTests(APITestCase):
         game.skill_level = 2
         game.number_of_players = 4
         game.game_type_id = 1
-        game.description = "Is it too late now to say sorry?"
         game.gamer_id = self.token.user_id
 
         # Save the Game to the testing database
