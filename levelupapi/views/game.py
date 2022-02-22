@@ -162,5 +162,3 @@ class GameSerializer(serializers.ModelSerializer):
         fields = ('id', 'title', 'maker', 'number_of_players', 'skill_level', 'game_type',
                   'event_count', 'user_event_count', 'gamer' )
         depth = 1
-
-# , 'user_event_count'
