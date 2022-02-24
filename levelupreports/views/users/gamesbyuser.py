@@ -12,9 +12,7 @@ class UserGameList(View):
 
             # TODO: Write a query to get all games along with the gamer first name, last name, and id
             db_cursor.execute("""
-            SELECT *, user.first_name || " " || user.last_name as full_name FROM levelupapi_game as game
-            JOIN levelupapi_gamer as gamer on gamer.id = game.gamer_id
-            JOIN auth_user as user on user.id = gamer.user_id
+                SELECT * FROM GAMES_BY_USER
             """)
             # Pass the db_cursor to the dict_fetch_all function to turn the fetch_all() response into a dictionary
             dataset = dict_fetch_all(db_cursor)
